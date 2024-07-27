@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
+def clean_data(df):
+    # Remove '\n' and '/n' from each cell in the dataframe
+    df = df.replace({'\n': '', '/n': ''}, regex=True)
+    return df
+
 def convert_to_excel(df):
     # Create a BytesIO buffer to save the Excel file
     output = BytesIO()
@@ -17,23 +22,29 @@ def main():
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
     
     if uploaded_file is not None:
-        # Read the CSV file
-        df = pd.read_csv(uploaded_file)
-        
-        # Display the uploaded dataframe
-        st.write("Uploaded Data:")
-        st.dataframe(df)
-        
-        # Convert the DataFrame to XLSX
-        xlsx_data = convert_to_excel(df)
-        
-        # Download link for the XLSX file
-        st.download_button(
-            label="Download XLSX",
-            data=xlsx_data,
-            file_name='converted_data.xlsx',
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+        try:
+            # Read the CSV file
+            df = pd.read_csv(uploaded_file, on_bad_lines='skip')
+            
+            # Clean the data
+            cleaned_df = clean_data(df)
+            
+            # Display the cleaned dataframe
+            st.write("Cleaned Data:")
+            st.dataframe(cleaned_df)
+            
+            # Convert the DataFrame to XLSX
+            xlsx_data = convert_to_excel(cleaned_df)
+            
+            # Download link for the XLSX file
+            st.download_button(
+                label="Download XLSX",
+                data=xlsx_data,
+                file_name='converted_data.xlsx',
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+        except Exception as e:
+            st.error(f"Error reading the CSV file: {e}")
 
 if __name__ == "__main__":
     main()
