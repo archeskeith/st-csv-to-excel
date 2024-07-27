@@ -32,7 +32,7 @@ term_mapping = {
 }
 
 def standardize_csv(uploaded_file):
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(uploaded_file, error_bad_lines=False)  # Skip bad lines
 
     # Standardize the first column
     for index, row in df.iterrows():
@@ -50,12 +50,12 @@ st.title("CSV Financial Term Standardization")
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
-    st.subheader("Original Data")
-    st.write(pd.read_csv(uploaded_file))
+    st.subheader("Original Data (Skipping Bad Lines)")
+    st.write(pd.read_csv(uploaded_file, error_bad_lines=False))  # Display with skipped lines
 
     standardized_df = standardize_csv(uploaded_file)
 
-    st.subheader("Standardized Data")
+    st.subheader("Standardized Data (Skipping Bad Lines)")
     st.write(standardized_df)
 
     # Download Link
