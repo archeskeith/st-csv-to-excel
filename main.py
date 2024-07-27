@@ -42,9 +42,14 @@ def standardize_csv(uploaded_file):
         stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
         df = pd.read_csv(stringio, on_bad_lines='skip')
 
-        # Standardize the first column
+        # Standardize the first column (Handle numeric values gracefully)
         for index, row in df.iterrows():
-            term_to_check = row[0].lower()
+            term_to_check = row[0]
+            if isinstance(term_to_check, str): # Check if it's a string before lowering
+                term_to_check = term_to_check.lower()
+            else:
+                term_to_check = str(term_to_check)  # Convert to string if it's not
+
             for main_term, alternatives in financial_terms.items():
                 if term_to_check in alternatives:
                     df.at[index, 0] = main_term
