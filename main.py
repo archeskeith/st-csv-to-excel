@@ -34,8 +34,12 @@ financial_terms = {
 
 
 
-def standardize_first_column(df, terms_dict):
+def standardize_first_column(df, terms_dict, has_header=True):
     """Standardizes terms in the first column of a DataFrame using a dictionary."""
+    if not has_header:
+        df.columns = df.iloc[0]  # Use first row as headers
+        df = df.iloc[1:].copy()  # Remove the first row from data
+
     first_column_values = df.iloc[:, 0].astype(str).str.lower()
 
     for main_term, alternatives in terms_dict.items():
@@ -49,12 +53,14 @@ def main():
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     if uploaded_file is not None:
         try:
-            df = pd.read_csv(uploaded_file,  
- on_bad_lines='skip')  # Skip bad lines
+            # Check if the file has headers
+            has_header = st.checkbox("Does the CSV have a header row?", value=True)
+            df = pd.read_csv(uploaded_file, on_bad_lines='skip', header=0 if has_header else None)
+
             st.write("Original Data:")
             st.dataframe(df)
 
-            standardized_df = standardize_first_column(df.copy(), financial_terms)
+            standardized_df = standardize_first_column(df.copy(), financial_terms, has_header)
             st.write("Standardized Data:")
             st.dataframe(standardized_df)
 
