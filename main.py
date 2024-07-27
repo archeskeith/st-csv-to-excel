@@ -45,7 +45,7 @@ st.title('Financial Term Standardizer')
 uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
 if uploaded_file is not None:
     # Read CSV into DataFrame
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(uploaded_file, error_bad_lines=False)
 
     # Display Original Data
     st.subheader('Original Data')
