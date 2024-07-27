@@ -8,9 +8,12 @@ def remove_newline_chars(file_path):
     df = pd.read_csv(file_path, on_bad_lines='skip')
     df.dropna(axis=1, how='all', inplace=True)
 
-    # Remove '\n' and '/n' from column names and cell values
+    # Remove '\n' and '/n' from column names
+    df.columns = df.columns.str.replace(r'\\n|/n', '', regex=True)
+
+    # Remove '\n' and '/n' from cell values
     for col in df.columns:
-        df[col] = df[col].astype(str).str.replace(r'\\n|/n', '', regex=True) 
+        df[col] = df[col].astype(str).str.replace(r'\\n|/n', '', regex=True)
     return df
 
 # Streamlit App
