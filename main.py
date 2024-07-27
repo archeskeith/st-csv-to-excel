@@ -48,21 +48,27 @@ def main():
 
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.write("Original Data:")
-        st.dataframe(df)
+        try:
+            df = pd.read_csv(uploaded_file,  
+ on_bad_lines='skip')  # Skip bad lines
+            st.write("Original Data:")
+            st.dataframe(df)
 
-        standardized_df = standardize_first_column(df.copy(), financial_terms)
-        st.write("Standardized Data:")
-        st.dataframe(standardized_df)
+            standardized_df = standardize_first_column(df.copy(), financial_terms)
+            st.write("Standardized Data:")
+            st.dataframe(standardized_df)
 
-        csv = standardized_df.to_csv(index=False)
-        st.download_button(
-            label="Download Standardized CSV",
-            data=csv,
-            file_name="standardized_data.csv",
-            mime="text/csv",
-        )
+            csv = standardized_df.to_csv(index=False)
+            st.download_button(
+                label="Download Standardized CSV",
+                data=csv,
+                file_name="standardized_data.csv",
+                mime="text/csv",
+            )
+        
+        except pd.errors.ParserError as e:
+            st.error(f"Error reading CSV: {e}")
+            st.write("Please check your CSV file for inconsistent column counts.")
 
 if __name__ == "__main__":
     main()
