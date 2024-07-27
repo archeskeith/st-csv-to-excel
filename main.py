@@ -32,54 +32,38 @@ financial_terms = {
                            'net cash provided by/(used in) operating activities']
 }
 
-def standardize_csv(uploaded_file):
-    try:
-        # Check for empty files
-        if uploaded_file.getvalue().strip() == b'':
-            st.warning("Uploaded file is empty!")
-            return pd.DataFrame()
 
-        stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-        df = pd.read_csv(stringio, on_bad_lines='skip')
+def standardize_terms(df, terms_dict):
+    """Standardizes terms in the first column of a DataFrame using a dictionary."""
+    for main_term, alternatives in terms_dict.items():
+        for alt_term in alternatives:
+            df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.lower().str.replace(alt_term, main_term, regex=False)
+    return df
 
-        # Standardize the first column (Handle numeric values gracefully)
-        for index, row in df.iterrows():
-            term_to_check = row[0]
-            if isinstance(term_to_check, str): # Check if it's a string before lowering
-                term_to_check = term_to_check.lower()
-            else:
-                term_to_check = str(term_to_check)  # Convert to string if it's not
+def main():
+    st.title("Financial Term Standardization")
 
-            for main_term, alternatives in financial_terms.items():
-                if term_to_check in alternatives:
-                    df.at[index, 0] = main_term
-                    break
+    # Upload CSV File
+    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.write("Original  
+ Data:")
+        st.dataframe(df)
 
-        return df
+        # Standardize Terms
+        standardized_df = standardize_terms(df.copy(), financial_terms)
+        st.write("Standardized Data:")
+        st.dataframe(standardized_df)
 
-    except pd.errors.EmptyDataError:
-        st.error("Uploaded file does not contain any columns. Please ensure it is a valid CSV file.")
-        return pd.DataFrame()
-
-# Streamlit App
-st.title("CSV Financial Term Standardization")
-
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
-
-if uploaded_file is not None:
-    standardized_df = standardize_csv(uploaded_file)
-
-    if not standardized_df.empty:
-        st.subheader("Original Data (Skipping Bad Lines)")
-        st.write(pd.read_csv(uploaded_file, on_bad_lines='skip'))
-        st.subheader("Standardized Data (Skipping Bad Lines)")
-        st.write(standardized_df)
-
-        # Download Link
+        # Download Link for Standardized CSV
         csv = standardized_df.to_csv(index=False)
         st.download_button(
             label="Download Standardized CSV",
             data=csv,
-            file_name="standardized_financial_data.csv",
+            file_name="standardized_data.csv",
             mime="text/csv",
         )
+
+if __name__ == "__main__":
+    main()
