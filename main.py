@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import io
 
 # Your Dictionary of Terms
 term_mapping = {
@@ -32,17 +33,28 @@ term_mapping = {
 }
 
 def standardize_csv(uploaded_file):
-    df = pd.read_csv(uploaded_file, on_bad_lines='skip')  # Skip bad lines
+    try:
+        # Check for empty files
+        if uploaded_file.getvalue().strip() == b'':
+            st.warning("Uploaded file is empty!")
+            return pd.DataFrame()
 
-    # Standardize the first column
-    for index, row in df.iterrows():
-        term_to_check = row[0].lower()  # Get the term in lowercase
-        for main_term, alternatives in financial_terms.items():
-            if term_to_check in alternatives:
-                df.at[index, 0] = main_term  # Replace with the main term
-                break  # Move on to the next row
+        stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
+        df = pd.read_csv(stringio, on_bad_lines='skip')
 
-    return df
+        # Standardize the first column
+        for index, row in df.iterrows():
+            term_to_check = row[0].lower()
+            for main_term, alternatives in financial_terms.items():
+                if term_to_check in alternatives:
+                    df.at[index, 0] = main_term
+                    break
+
+        return df
+
+    except pd.errors.EmptyDataError:
+        st.error("Uploaded file does not contain any columns. Please ensure it is a valid CSV file.")
+        return pd.DataFrame()
 
 # Streamlit App
 st.title("CSV Financial Term Standardization")
@@ -50,20 +62,19 @@ st.title("CSV Financial Term Standardization")
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
-    st.subheader("Original Data (Skipping Bad Lines)")
-    st.write(pd.read_csv(uploaded_file, on_bad_lines='skip'))
-
     standardized_df = standardize_csv(uploaded_file)
 
-    st.subheader("Standardized Data (Skipping Bad Lines)")
-    st.write(standardized_df)
+    if not standardized_df.empty:
+        st.subheader("Original Data (Skipping Bad Lines)")
+        st.write(pd.read_csv(uploaded_file, on_bad_lines='skip'))
+        st.subheader("Standardized Data (Skipping Bad Lines)")
+        st.write(standardized_df)
 
-    
-    # Download Link
-    csv = standardized_df.to_csv(index=False)
-    st.download_button(
-        label="Download Standardized CSV",
-        data=csv,
-        file_name="standardized_financial_data.csv",
-        mime="text/csv",
-    )
+        # Download Link
+        csv = standardized_df.to_csv(index=False)
+        st.download_button(
+            label="Download Standardized CSV",
+            data=csv,
+            file_name="standardized_financial_data.csv",
+            mime="text/csv",
+        )
