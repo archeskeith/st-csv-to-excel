@@ -3,7 +3,7 @@ import pandas as pd
 import io
 
 # Your Dictionary of Terms
-term_mapping = {
+financial_terms = {
     'total interest bearing liabilities or financial debt': ['financial debt', 'total liabilities'],
     'total tangible net worth (equity)': ['total shareholder\'s equity', 'total stockholder\'s equity', 'total equity'],
     'total assets': [],
