@@ -52,8 +52,11 @@ st.title("CSV Column Standardizer")
 uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
-    
+    try:
+        df = pd.read_csv(uploaded_file)
+    except pd.errors.ParserError as e:
+        st.error(f"Error reading CSV: {e}")
+        st.stop()
     # Display original columns
     st.subheader("Original Columns:")
     st.write(df.columns)
