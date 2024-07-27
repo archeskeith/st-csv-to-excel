@@ -5,7 +5,7 @@ from io import StringIO
 
 # Function to clean the newlines and "/n"
 def remove_newline_chars(file_path):
-    df = pd.read_csv(file_path, skiprows=2)
+    df = pd.read_csv(file_path)
 
     # Clean column names
     df.columns = df.columns.str.replace(r'\n|/n', '', regex=True) 
