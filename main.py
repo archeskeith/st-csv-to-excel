@@ -31,12 +31,13 @@ term_mapping = {
                            'net cash provided by/(used in) operating activities']
 }
 
-# Function to standardize terms in a DataFrame
 def standardize_terms(df):
     for col in df.columns:
-        for main_term, alternatives in term_mapping.items():
-            df[col] = df[col].astype(str).str.lower().replace(alternatives, main_term)
+        mask = df[col].notna() & df[col].astype(str).str.strip() != ""  # Create a mask for non-empty cells
+        for main_term, alternatives in term_dict.items():
+            df.loc[mask, col] = df.loc[mask, col].astype(str).str.lower().replace(alternatives, main_term)
     return df
+
 
 # Streamlit App
 st.title('Financial Term Standardizer')
