@@ -8,23 +8,32 @@ def clean_and_convert_csv(file_contents):
     """Cleans and converts a CSV file content string into a DataFrame,
        removing newlines and commas within numeric values."""
 
-    headers, rows = final_string_to_csv(file_contents)
+    try:
+        # Attempt to read as pipe-separated with headers
+        df = pd.read_csv(StringIO(file_contents), delimiter='|', skiprows=2)
+        
+        # Remove newlines and commas, convert to numeric where possible
+        for col in df.columns:
+            df[col] = df[col].astype(str).str.replace(r'[,\n]', '', regex=True)
+            df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    # Handle cases where the first row is not the header
-    if len(rows) > 0 and len(rows[0]) == len(headers):
-        df_cleaned = pd.DataFrame(rows, columns=headers)
-    else:
-        # Assume no header row and assign default column names
-        df_cleaned = pd.DataFrame(rows)
-        headers = [f"Column {i+1}" for i in range(len(df_cleaned.columns))]
-        df_cleaned.columns = headers
+        return df
 
-    # Remove commas and newlines, convert to numeric where possible
-    for col in df_cleaned.columns:
-        df_cleaned[col] = df_cleaned[col].astype(str).str.replace(r'[,\n]', '', regex=True)
-        df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce')
+    except pd.errors.ParserError:
+        # If pipe-separated fails, try comma-separated (with possible headers)
+        try:
+            df = pd.read_csv(StringIO(file_contents), skiprows=2)
 
-    return df_cleaned
+            # Remove newlines and commas, convert to numeric where possible
+            for col in df.columns:
+                df[col] = df[col].astype(str).str.replace(r'[,\n]', '', regex=True)
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
+            return df
+
+        except pd.errors.ParserError:
+            st.error("Error: Unable to parse the CSV file. Please check its format.")
+            return None
 
 # Function to convert a string with '|' and '\n' delimiters into CSV format
 def final_string_to_csv(input_string):
