@@ -44,25 +44,29 @@ st.title('Financial Term Standardizer')
 # File Uploader
 uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
 if uploaded_file is not None:
-    # Read CSV into DataFrame
-    df = pd.read_csv(uploaded_file, error_bad_lines=False)
+    try:
+        df = pd.read_csv(uploaded_file,  
+ on_bad_lines='skip')  # Use on_bad_lines
 
-    # Display Original Data
-    st.subheader('Original Data')
-    st.dataframe(df)
+        # Display Original Data
+        st.subheader('Original Data')
+        st.dataframe(df)
 
-    # Standardize Terms
-    standardized_df = standardize_terms(df)
+        # Standardize Terms
+        standardized_df = standardize_terms(df)
 
-    # Display Standardized Data
-    st.subheader('Standardized Data')
-    st.dataframe(standardized_df)
+        # Display Standardized Data
+        st.subheader('Standardized Data')
+        st.dataframe(standardized_df)
 
-    # Download Link
-    csv = standardized_df.to_csv(index=False)
-    st.download_button(
-        label="Download Standardized CSV",
-        data=csv,
-        file_name='standardized_financials.csv',
-        mime='text/csv',
-    )
+        # Download Link
+        csv = standardized_df.to_csv(index=False)
+        st.download_button(
+            label="Download Standardized CSV",
+            data=csv,
+            file_name='standardized_financials.csv',
+            mime='text/csv',
+        )
+    
+    except pd.errors.ParserError as e:
+        st.error(f"Error reading CSV: {e}")
