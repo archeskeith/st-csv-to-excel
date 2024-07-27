@@ -31,48 +31,38 @@ term_mapping = {
                            'net cash provided by/(used in) operating activities']
 }
 
-# Function to standardize column names based on the mapping
-def standardize_columns(df, mapping):
-    # Reverse the mapping for easier lookup
-    reverse_mapping = {}
-    for main_term, alternatives in mapping.items():
-        for alt in alternatives:
-            reverse_mapping[alt.lower()] = main_term.lower()
-
-    # Match and replace column names
-    df.columns = [
-        reverse_mapping.get(col.lower(), col)  # Use main term if found, else keep original
-        for col in df.columns
-    ]
+# Function to standardize terms in a DataFrame
+def standardize_terms(df):
+    for col in df.columns:
+        for main_term, alternatives in term_dict.items():
+            df[col] = df[col].astype(str).str.lower().replace(alternatives, main_term)
     return df
 
 # Streamlit App
-st.title("CSV Column Standardizer")
+st.title('Financial Term Standardizer')
 
-uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
-
+# File Uploader
+uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
 if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file)
-    except pd.errors.ParserError as e:
-        st.error(f"Error reading CSV: {e}")
-        st.stop()
-    # Display original columns
-    st.subheader("Original Columns:")
-    st.write(df.columns)
+    # Read CSV into DataFrame
+    df = pd.read_csv(uploaded_file)
 
-    # Standardize columns
-    df = standardize_columns(df, term_mapping)
+    # Display Original Data
+    st.subheader('Original Data')
+    st.dataframe(df)
 
-    # Display standardized columns
-    st.subheader("Standardized Columns:")
-    st.write(df.columns)
+    # Standardize Terms
+    standardized_df = standardize_terms(df)
 
-    # Download Link (using CSV string to avoid temporary files)
-    csv = df.to_csv(index=False)
+    # Display Standardized Data
+    st.subheader('Standardized Data')
+    st.dataframe(standardized_df)
+
+    # Download Link
+    csv = standardized_df.to_csv(index=False)
     st.download_button(
         label="Download Standardized CSV",
         data=csv,
-        file_name="standardized.csv",
-        mime="text/csv",
+        file_name='standardized_financials.csv',
+        mime='text/csv',
     )
