@@ -76,6 +76,7 @@ def standardize_first_column(df, terms_dict):
             df.iloc[:, 0] = first_column_values.str.replace(alt_term, main_term, regex=False)
     return df
 
+
 def main():
     st.title("Financial Term Standardization (First Column)")
 
@@ -84,7 +85,7 @@ def main():
         try:
             # Read CSV with header starting from the third row
             stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-            df = pd.read_csv(stringio, on_bad_lines='skip', header=2) 
+            df = pd.read_csv(stringio, on_bad_lines='skip', header=2)
 
             # Remove trailing newline characters from column names
             df.columns = df.columns.str.rstrip('\n')
@@ -92,10 +93,12 @@ def main():
             st.write("Original Data:")
             st.dataframe(df)
 
-            # Clean numeric columns (remove commas and parentheses)
-            for col in ['2020', '2019']:
-                df[col] = df[col].astype(str).str.replace(r'[,()]', '', regex=True)
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+            # Check and Clean numeric columns
+            numeric_columns = ['2020', '2019']
+            for col in numeric_columns:
+                if col in df.columns:  # Check if column exists
+                    df[col] = df[col].astype(str).str.replace(r'[,()]', '', regex=True)
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
             # Standardize the first column
             standardized_df = standardize_first_column(df.copy(), financial_terms)
@@ -106,7 +109,6 @@ def main():
             st.write("Standardized Data:")
             st.dataframe(standardized_df)
 
-            # Create a download link for the standardized CSV
             csv = standardized_df.to_csv(index=False)
             st.download_button(
                 label="Download Standardized CSV",
