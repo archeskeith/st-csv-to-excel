@@ -3,21 +3,25 @@ import pandas as pd
 import base64
 from io import StringIO
 
-# Function to clean and convert the CSV data (modified)
 def clean_and_convert_csv(file_contents):
     """Cleans and converts a CSV file content string into a DataFrame,
        removing newlines and commas within numeric values."""
 
     headers, rows = final_string_to_csv(file_contents)
-    df_cleaned = pd.DataFrame(rows, columns=headers)
 
-    # Additional cleaning for numeric columns (remove commas and newlines)
+    # Handle cases where the first row is not the header
+    if len(rows) > 0 and len(rows[0]) == len(headers):
+        df_cleaned = pd.DataFrame(rows, columns=headers)
+    else:
+        # Assume no header row and assign default column names
+        df_cleaned = pd.DataFrame(rows)
+        headers = [f"Column {i+1}" for i in range(len(df_cleaned.columns))]
+        df_cleaned.columns = headers
+
+    # Remove commas and newlines, convert to numeric where possible
     for col in df_cleaned.columns:
-        try:
-            df_cleaned[col] = df_cleaned[col].astype(str).str.replace(r'[,\n]', '', regex=True)
-            df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce')
-        except ValueError:
-            pass  # Non-numeric column, no need to convert
+        df_cleaned[col] = df_cleaned[col].astype(str).str.replace(r'[,\n]', '', regex=True)
+        df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce')
 
     return df_cleaned
 
