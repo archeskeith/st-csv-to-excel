@@ -31,43 +31,38 @@ term_mapping = {
                            'net cash provided by/(used in) operating activities']
 }
 
-def standardize_terms(df):
-    for col in df.columns:
-        mask = df[col].notna() & df[col].astype(str).str.strip() != "" 
-        for main_term, alternatives in term_mapping.items():
-            df.loc[mask, col] = df.loc[mask, col].astype(str).str.lower().replace(alternatives, main_term)
+def standardize_csv(uploaded_file):
+    df = pd.read_csv(uploaded_file)
+
+    # Standardize the first column
+    for index, row in df.iterrows():
+        term_to_check = row[0].lower()  # Get the term in lowercase
+        for main_term, alternatives in financial_terms.items():
+            if term_to_check in alternatives:
+                df.at[index, 0] = main_term  # Replace with the main term
+                break  # Move on to the next row
+
     return df
 
-
 # Streamlit App
-st.title('Financial Term Standardizer')
+st.title("CSV Financial Term Standardization")
 
-# File Uploader
-uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+
 if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file,  
- on_bad_lines='skip')  # Use on_bad_lines
+    st.subheader("Original Data")
+    st.write(pd.read_csv(uploaded_file))
 
-        # Display Original Data
-        st.subheader('Original Data')
-        st.dataframe(df)
+    standardized_df = standardize_csv(uploaded_file)
 
-        # Standardize Terms
-        standardized_df = standardize_terms(df)
+    st.subheader("Standardized Data")
+    st.write(standardized_df)
 
-        # Display Standardized Data
-        st.subheader('Standardized Data')
-        st.dataframe(standardized_df)
-
-        # Download Link
-        csv = standardized_df.to_csv(index=False)
-        st.download_button(
-            label="Download Standardized CSV",
-            data=csv,
-            file_name='standardized_financials.csv',
-            mime='text/csv',
-        )
-    
-    except pd.errors.ParserError as e:
-        st.error(f"Error reading CSV: {e}")
+    # Download Link
+    csv = standardized_df.to_csv(index=False)
+    st.download_button(
+        label="Download Standardized CSV",
+        data=csv,
+        file_name="standardized_financial_data.csv",
+        mime="text/csv",
+    )
