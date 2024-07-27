@@ -33,7 +33,7 @@ term_mapping = {
 
 def standardize_terms(df):
     for col in df.columns:
-        mask = df[col].notna() & df[col].astype(str).str.strip() != ""  # Create a mask for non-empty cells
+        mask = df[col].notna() & df[col].astype(str).str.strip() != "" 
         for main_term, alternatives in term_mapping.items():
             df.loc[mask, col] = df.loc[mask, col].astype(str).str.lower().replace(alternatives, main_term)
     return df
