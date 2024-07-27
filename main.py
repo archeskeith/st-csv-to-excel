@@ -4,21 +4,17 @@ import base64
 from io import StringIO
 
 def remove_newline_chars(file_path):
-    # Read the CSV, filling missing values and dropping extra columns
-    df = pd.read_csv(file_path, on_bad_lines='skip')  # Skip bad lines
-    df.dropna(axis=1, how='all', inplace=True)  # Drop empty columns
+    # Read the CSV file
+    df = pd.read_csv(file_path, on_bad_lines='skip')
+    df.dropna(axis=1, how='all', inplace=True)
 
-    # Clean column names
-    df.columns = df.columns.str.replace(r'\n|/n', '', regex=True) 
-
-    # Clean cell values
+    # Remove '\n' and '/n' from column names and cell values
     for col in df.columns:
-        df[col] = df[col].astype(str).str.replace(r'\n|/n', '', regex=True)
-
+        df[col] = df[col].astype(str).str.replace(r'\\n|/n', '', regex=True) 
     return df
 
 # Streamlit App
-st.title("CSV Newline & '/n' Cleaner") 
+st.title("CSV Newline & '/n' Cleaner")
 
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
