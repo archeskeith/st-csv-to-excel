@@ -66,81 +66,58 @@ financial_terms = {
 
 
 
-def standardize_first_column(df, terms_dict, has_header=True):
 
-   """Standardizes terms in the first column of a DataFrame using a dictionary."""
+def standardize_first_column(df, terms_dict):
+    """Standardizes terms in the first column of a DataFrame using a dictionary."""
+    first_column_values = df.iloc[:, 0].astype(str).str.lower()
 
-   if not has_header:
-
-       df.columns = df.iloc[0] # Use first row as headers
-
-       df = df.iloc[1:].copy() # Remove the first row from data
-
-
-   first_column_values = df.iloc[:, 0].astype(str).str.lower()
-
-
-   for main_term, alternatives in terms_dict.items():
-
-       for alt_term in alternatives:
-
-           df.iloc[:, 0] = first_column_values.str.replace(alt_term, main_term, regex=False)
-
-   return df
-
+    for main_term, alternatives in terms_dict.items():
+        for alt_term in alternatives:
+            df.iloc[:, 0] = first_column_values.str.replace(alt_term, main_term, regex=False)
+    return df
 
 def main():
+    st.title("Financial Term Standardization (First Column)")
 
-   st.title("Financial Term Standardization (First Column)")
+    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+    if uploaded_file is not None:
+        try:
+            # Read CSV with header starting from the third row
+            stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
+            df = pd.read_csv(stringio, on_bad_lines='skip', header=2) 
 
+            # Remove trailing newline characters from column names
+            df.columns = df.columns.str.rstrip('\n')
 
-   uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+            st.write("Original Data:")
+            st.dataframe(df)
 
-   if uploaded_file is not None:
+            # Clean numeric columns (remove commas and parentheses)
+            for col in ['2020', '2019']:
+                df[col] = df[col].astype(str).str.replace(r'[,()]', '', regex=True)
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-       try:
+            # Standardize the first column
+            standardized_df = standardize_first_column(df.copy(), financial_terms)
 
-           # Check if the file has headers
+            st.write("Standardized Unique Values:")
+            st.write(standardized_df.iloc[:, 0].unique())
 
-           has_header = st.checkbox("Does the CSV have a header row?", value=True)
+            st.write("Standardized Data:")
+            st.dataframe(standardized_df)
 
-           df = pd.read_csv(uploaded_file, on_bad_lines='skip', header=0 if has_header else None)
+            # Create a download link for the standardized CSV
+            csv = standardized_df.to_csv(index=False)
+            st.download_button(
+                label="Download Standardized CSV",
+                data=csv,
+                file_name="standardized_data.csv",
+                mime="text/csv",
+            )
 
-
-           st.write("Original Data:")
-
-           st.dataframe(df)
-
-
-           standardized_df = standardize_first_column(df.copy(), financial_terms, has_header)
-
-           st.write("Standardized Data:")
-
-           st.dataframe(standardized_df)
-
-
-           csv = standardized_df.to_csv(index=False)
-
-           st.download_button(
-
-               label="Download Standardized CSV",
-
-               data=csv,
-
-               file_name="standardized_data.csv",
-
-               mime="text/csv",
-
-           )
-
-
-       except pd.errors.ParserError as e:
-
-           st.error(f"Error reading CSV: {e}")
-
-           st.write("Please check your CSV file for inconsistent column counts.")
-
+        except pd.errors.ParserError as e:
+            st.error(f"Error reading CSV: {e}")
+            st.write("Please check your CSV file for inconsistent column counts or invalid characters.")
 
 if __name__ == "__main__":
-
-   main()
+    main()
