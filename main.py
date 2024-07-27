@@ -34,29 +34,28 @@ financial_terms = {
 
 
 
-def standardize_terms(df, terms_dict):
+def standardize_first_column(df, terms_dict):
     """Standardizes terms in the first column of a DataFrame using a dictionary."""
+    first_column_values = df.iloc[:, 0].astype(str).str.lower()
+
     for main_term, alternatives in terms_dict.items():
         for alt_term in alternatives:
-            df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.lower().str.replace(alt_term, main_term, regex=False)
+            df.iloc[:, 0] = first_column_values.str.replace(alt_term, main_term, regex=False)
     return df
 
 def main():
-    st.title("Financial Term Standardization")
+    st.title("Financial Term Standardization (First Column)")
 
-    # Upload CSV File
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
         st.write("Original Data:")
         st.dataframe(df)
 
-        # Standardize Terms
-        standardized_df = standardize_terms(df.copy(), financial_terms)
+        standardized_df = standardize_first_column(df.copy(), financial_terms)
         st.write("Standardized Data:")
         st.dataframe(standardized_df)
 
-        # Download Link for Standardized CSV
         csv = standardized_df.to_csv(index=False)
         st.download_button(
             label="Download Standardized CSV",
