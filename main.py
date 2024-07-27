@@ -3,9 +3,10 @@ import pandas as pd
 import base64
 from io import StringIO
 
-# Function to clean the newlines and "/n"
 def remove_newline_chars(file_path):
-    df = pd.read_csv(file_path)
+    # Read the CSV, filling missing values and dropping extra columns
+    df = pd.read_csv(file_path, on_bad_lines='skip')  # Skip bad lines
+    df.dropna(axis=1, how='all', inplace=True)  # Drop empty columns
 
     # Clean column names
     df.columns = df.columns.str.replace(r'\n|/n', '', regex=True) 
