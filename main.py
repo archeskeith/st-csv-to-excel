@@ -34,7 +34,7 @@ term_mapping = {
 # Function to standardize terms in a DataFrame
 def standardize_terms(df):
     for col in df.columns:
-        for main_term, alternatives in term_dict.items():
+        for main_term, alternatives in term_mapping.items():
             df[col] = df[col].astype(str).str.lower().replace(alternatives, main_term)
     return df
 
