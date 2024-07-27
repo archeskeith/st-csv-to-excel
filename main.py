@@ -33,6 +33,7 @@ financial_terms = {
 }
 
 
+
 def standardize_terms(df, terms_dict):
     """Standardizes terms in the first column of a DataFrame using a dictionary."""
     for main_term, alternatives in terms_dict.items():
@@ -47,8 +48,7 @@ def main():
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
-        st.write("Original  
- Data:")
+        st.write("Original Data:")
         st.dataframe(df)
 
         # Standardize Terms
