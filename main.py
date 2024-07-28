@@ -73,8 +73,10 @@ def standardize_first_column(df, terms_dict):
 
     for main_term, alternatives in terms_dict.items():
         for alt_term in alternatives:
-            df.iloc[:, 0] = first_column_values.str.replace(alt_term, main_term, regex=False)
+            first_column_values = first_column_values.str.replace(alt_term, main_term, regex=False)
+    df.iloc[:, 0] = first_column_values
     return df
+
 
 
 def main():
@@ -96,7 +98,7 @@ def main():
             # Check and Clean numeric columns
             numeric_columns = ['2020', '2019']
             for col in numeric_columns:
-                if col in df.columns:  # Check if column exists
+                if col in df.columns:  
                     df[col] = df[col].astype(str).str.replace(r'[,()]', '', regex=True)
                     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
