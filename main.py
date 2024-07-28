@@ -40,8 +40,10 @@ def standardize_first_column(df, terms_dict):
     first_column_values = df.iloc[:, 0].astype(str).str.lower()
 
     for main_term, alternatives in terms_dict.items():
-        for alt_term in alternatives:
-            first_column_values = first_column_values.str.replace(alt_term, main_term, regex=False)
+        if alternatives:  # Only process if there are alternatives
+            pattern = '|'.join(map(re.escape, alternatives))  # Create a regex pattern
+            first_column_values = first_column_values.str.replace(pattern, main_term, regex=True)
+
     df.iloc[:, 0] = first_column_values
     return df
 
