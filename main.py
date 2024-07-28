@@ -6,66 +6,34 @@ import io
 
 
 # Your Dictionary of Terms
-
 financial_terms = {
-
-   'total interest bearing liabilities or financial debt': ['financial debt', 'total liabilities'],
-
-   'total tangible net worth (equity)': ['total shareholder\'s equity', 'total stockholder\'s equity', 'total equity'],
-
-   'total assets': [],
-
-   'current assets': ['total current assets'],
-
-   'current liabilities': ['total current liabilities'],
-
-   'cash and easily marketable securities': ['cash', 'cash and cash equivalents'],
-
-   'intangible asset': [],
-
-   'short-term debt': ['loans payable - current'],
-
-   'total accounts receivable': ['receivables', 'trade and other receivables'],
-
-   'accounts payable': ['trade payables', 'trade and other payables'],
-
-   'inventory': [],
-
-   'cost of services': ['cost of sales', 'cost of goods', 'cost of goods/cost of services', 'direct costs'],
-
-   'operating expenses': ['operating costs'],
-
-   'earnings before interest and tax': ['operating income', 'earnings before interest and tax (ebit)', 'ebit',
-
+    'total interest bearing liabilities or financial debt': ['financial debt', 'total liabilities'],
+    'total tangible net worth (equity)': ['total shareholder\'s equity', 'total stockholder\'s equity', 'total equity'],
+    'total assets': [],
+    'current assets': ['total current assets'],
+    'current liabilities': ['total current liabilities'],
+    'cash and easily marketable securities': ['cash', 'cash and cash equivalents'],
+    'intangible asset': [],
+    'short-term debt': ['loans payable - current'],
+    'total accounts receivable': ['receivables', 'trade and other receivables'],
+    'accounts payable': ['trade payables', 'trade and other payables'],
+    'inventory': [],
+    'cost of services': ['cost of sales', 'cost of goods', 'cost of goods/cost of services', 'direct costs'],
+    'operating expenses': ['operating costs'],
+    'earnings before interest and tax': ['operating income', 'earnings before interest and tax (ebit)', 'ebit',
                                        'net income from operations', 'profit before tax', 'income before changes in working capital'],
-
-   'interest expense': [],
-
-   'gross profit': ['gross income'],
-
-   'total revenue': ['gross revenue', 'total sales', 'gross sales', 'revenue', 'service revenues'],
-
-   'net profit after tax': ['net income after tax', 'npat', 'net income', 'net earnings', 'net income (loss) after tax', 'profit for the year'],
-
-   'earnings before interest tax depreciation amortization': ['income before changes in working capital'],
-
-   'operating cash flow': ['ocf', 'net cash provided by operating activities or cash flow from operations',
-
-                          'net cash used in operating activities or cash flow from operations',
-
-                          'net cash flows provided by/(used from) from investing activities',
-
-                          'net cash provided by operating activities',
-
-                          'net cash provided by/(used from) from investing activities',
-
-                          'net cash provided by/(used in) operating activities']
-
+    'interest expense': [],
+    'gross profit': ['gross income'],
+    'total revenue': ['gross revenue', 'total sales', 'gross sales', 'revenue', 'service revenues'],
+    'net profit after tax': ['net income after tax', 'npat', 'net income', 'net earnings', 'net income (loss) after tax', 'profit for the year'],
+    'earnings before interest tax depreciation amortization': ['income before changes in working capital'],
+    'operating cash flow': ['ocf', 'net cash provided by operating activities or cash flow from operations',
+                           'net cash used in operating activities or cash flow from operations',
+                           'net cash flows provided by/(used from) from investing activities',
+                           'net cash provided by operating activities',
+                           'net cash provided by/(used from) from investing activities',
+                           'net cash provided by/(used in) operating activities']
 }
-
-
-
-
 
 def standardize_first_column(df, terms_dict):
     """Standardizes terms in the first column of a DataFrame using a dictionary."""
@@ -76,7 +44,6 @@ def standardize_first_column(df, terms_dict):
             first_column_values = first_column_values.str.replace(alt_term, main_term, regex=False)
     df.iloc[:, 0] = first_column_values
     return df
-
 
 
 def main():
@@ -98,7 +65,7 @@ def main():
             # Check and Clean numeric columns
             numeric_columns = ['2020', '2019']
             for col in numeric_columns:
-                if col in df.columns:  
+                if col in df.columns:
                     df[col] = df[col].astype(str).str.replace(r'[,()]', '', regex=True)
                     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
