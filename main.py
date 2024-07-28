@@ -48,7 +48,7 @@ def standardize_first_column(df, terms_dict):
 
 
 def main():
-    st.title("Financial Term Standardization (First Column)")
+    st.title("CSV Term Standardization")
 
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     if uploaded_file is not None:
