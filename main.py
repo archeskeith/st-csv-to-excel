@@ -73,8 +73,8 @@ def main():
             # Standardize the first column
             standardized_df = standardize_first_column(df.copy(), financial_terms)
 
-            st.write("Standardized Unique Values:")
-            st.write(standardized_df.iloc[:, 0].unique())
+            # st.write("Standardized Unique Values:")
+            # st.write(standardized_df.iloc[:, 0].unique())
 
             st.write("Standardized Data:")
             st.dataframe(standardized_df)
